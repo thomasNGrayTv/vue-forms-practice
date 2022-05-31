@@ -13,20 +13,28 @@ const props = defineProps({
     type: [String, Number],
     required: true,
   },
+  vertical: {
+    type: Boolean,
+    default: false
+  }
 });
 const emit = defineEmits(["update:modelValue"]);
 </script>
 
 <template>
-  <BaseRadio
-    v-for="(option, index) in props.options"
+  <component  v-for="(option, index) in props.options"
     :key="index"
+    :is="vertical ? 'div' : 'span'"
+    >
+
+  <BaseRadio
     :value="option.value"
     :label="option.label"
     :name="props.name"
     :modelValue="modelValue"
     @update:modelValue="emit('update:modelValue', $event)"
   ></BaseRadio>
+  </component>
 </template>
 
 <style></style>

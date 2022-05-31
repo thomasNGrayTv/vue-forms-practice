@@ -71,6 +71,7 @@ const petOptions = ref([
           v-model="event.pets"
           name="pets"
           :options="petOptions"
+          vertical
         ></BaseRadioGroup>
       </div>
 
