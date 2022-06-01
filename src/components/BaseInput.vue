@@ -30,7 +30,12 @@ const props = defineProps({
     :aria-describedby="error ? `${uuid}-error` : null"
     :aria-invalid="error ? true : null"
   />
-  <p aria-live="assertive" v-if="error" :id="`${uuid}-error`">
+  <p
+    aria-live="assertive"
+    v-if="error"
+    :id="`${uuid}-error`"
+    class="errorMessage"
+  >
     {{ error }}
   </p>
 </template>

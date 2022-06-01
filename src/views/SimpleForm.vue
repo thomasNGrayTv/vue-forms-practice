@@ -5,6 +5,31 @@ import BaseSelect from "../components/BaseSelect.vue";
 import BaseCheckbox from "../components/BaseCheckbox.vue";
 import BaseRadioGroup from "../components/BaseRadioGroup.vue";
 import axios from "axios";
+import { useField, useForm } from "vee-validate";
+import { required, minLength, anything } from "../features/ValidationRules";
+
+const validationSchema = {
+  category: required,
+  title: (value) => {
+    const req = required(value);
+    const min = minLength(3, value);
+
+    if (!req) {
+      return req;
+    }
+
+    if (!min) {
+      return min;
+    }
+
+    return true;
+  },
+  description: required,
+  location: undefined,
+  pets: anything,
+  catering: anything,
+  music: anything,
+};
 
 const categories = ref([
   "sustainability",
@@ -40,6 +65,29 @@ const petOptions = ref([
 
 let sendError = ref(null);
 
+const { handleSubmit } = useForm({
+  validationSchema,
+});
+
+const { value: category, errorMessage: categoryError } = useField("category");
+const { value: title, errorMessage: titleError } = useField("title");
+const { value: description, errorMessage: descriptionError } =
+  useField("description");
+const { value: location, errorMessage: locationError } = useField("location");
+const { value: pets, errorMessage: petsError } = useField("pets", undefined, {
+  initialValue: 1,
+});
+const { value: catering, errorMessage: cateringError } = useField(
+  "catering",
+  undefined,
+  { initialValue: false }
+);
+const { value: music, errorMessage: musicError } = useField(
+  "music",
+  undefined,
+  { initialValue: false }
+);
+
 function sendForm() {
   axios
     .post(
@@ -61,14 +109,20 @@ function sendForm() {
     <h1>Create an event</h1>
     <form @submit.prevent="sendForm">
       <BaseSelect
-        v-model="event.category"
+        v-model="category"
+        :error="categoryError"
         :options="categories"
         label="Select a category"
       ></BaseSelect>
 
       <fieldset>
         <legend>Name & describe your event</legend>
-        <BaseInput v-model="event.title" label="Title" type="text"></BaseInput>
+        <BaseInput
+          v-model="title"
+          :error="titleError"
+          label="Title"
+          type="text"
+        ></BaseInput>
         <BaseInput
           v-model="event.description"
           label="Description"
@@ -79,7 +133,8 @@ function sendForm() {
       <fieldset>
         <legend>Where is your event?</legend>
         <BaseInput
-          v-model="event.location"
+          v-model="location"
+          :error="locationError"
           label="Location"
           type="text"
         ></BaseInput>
@@ -90,7 +145,8 @@ function sendForm() {
         <p>Are pets allowed?</p>
         <div>
           <BaseRadioGroup
-            v-model="event.pets"
+            v-model="pets"
+            :error="petsError"
             name="pets"
             :options="petOptions"
             vertical
@@ -104,7 +160,8 @@ function sendForm() {
           <BaseCheckbox
             type="checkbox"
             label="Catering"
-            v-model="event.extras.catering"
+            v-model="catering"
+            :error="cateringError"
           ></BaseCheckbox>
         </div>
 
@@ -112,7 +169,8 @@ function sendForm() {
           <BaseCheckbox
             type="checkbox"
             label="Live Music"
-            v-model="event.extras.music"
+            v-model="music"
+            :error="musicError"
           ></BaseCheckbox>
         </div>
       </fieldset>
