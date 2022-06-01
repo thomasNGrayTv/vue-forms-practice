@@ -4,6 +4,7 @@ import BaseInput from "../components/BaseInput.vue";
 import BaseSelect from "../components/BaseSelect.vue";
 import BaseCheckbox from "../components/BaseCheckbox.vue";
 import BaseRadioGroup from "../components/BaseRadioGroup.vue";
+import axios from "axios";
 
 const categories = ref([
   "sustainability",
@@ -36,63 +37,90 @@ const petOptions = ref([
     value: 0,
   },
 ]);
+
+let sendError = ref(null);
+
+function sendForm() {
+  axios
+    .post(
+      "https://my-json-server.typicode.com/Code-Pop/Vue-3-Forms/events",
+      event.value
+    )
+    .then((response) => {
+      console.log("response: ", response);
+    })
+    .catch((err) => {
+      console.log("error", err);
+      sendError.value = err;
+    });
+}
 </script>
 
 <template>
   <div>
     <h1>Create an event</h1>
-    <form>
+    <form @submit.prevent="sendForm">
       <BaseSelect
         v-model="event.category"
         :options="categories"
         label="Select a category"
       ></BaseSelect>
 
-      <h3>Name & describe your event</h3>
+      <fieldset>
+        <legend>Name & describe your event</legend>
+        <BaseInput v-model="event.title" label="Title" type="text"></BaseInput>
+        <BaseInput
+          v-model="event.description"
+          label="Description"
+          type="text"
+        ></BaseInput>
+      </fieldset>
 
-      <BaseInput v-model="event.title" label="Title" type="text"></BaseInput>
-      <BaseInput
-        v-model="event.description"
-        label="Description"
-        type="text"
-      ></BaseInput>
+      <fieldset>
+        <legend>Where is your event?</legend>
+        <BaseInput
+          v-model="event.location"
+          label="Location"
+          type="text"
+        ></BaseInput>
+      </fieldset>
 
-      <h3>Where is your event?</h3>
+      <fieldset>
+        <legend>Pets</legend>
+        <p>Are pets allowed?</p>
+        <div>
+          <BaseRadioGroup
+            v-model="event.pets"
+            name="pets"
+            :options="petOptions"
+            vertical
+          ></BaseRadioGroup>
+        </div>
+      </fieldset>
 
-      <BaseInput
-        v-model="event.location"
-        label="Location"
-        type="text"
-      ></BaseInput>
+      <fieldset>
+        <legend>Extras</legend>
+        <div>
+          <BaseCheckbox
+            type="checkbox"
+            label="Catering"
+            v-model="event.extras.catering"
+          ></BaseCheckbox>
+        </div>
 
-      <h3>Are pets allowed?</h3>
-      <div>
-        <BaseRadioGroup
-          v-model="event.pets"
-          name="pets"
-          :options="petOptions"
-          vertical
-        ></BaseRadioGroup>
-      </div>
-
-      <h3>Extras</h3>
-      <div>
-        <BaseCheckbox
-          type="checkbox"
-          label="Catering"
-          v-model="event.extras.catering"
-        ></BaseCheckbox>
-      </div>
-
-      <div>
-        <BaseCheckbox
-          type="checkbox"
-          label="Live Music"
-          v-model="event.extras.music"
-        ></BaseCheckbox>
-      </div>
+        <div>
+          <BaseCheckbox
+            type="checkbox"
+            label="Live Music"
+            v-model="event.extras.music"
+          ></BaseCheckbox>
+        </div>
+      </fieldset>
 
       <button type="submit">Submit</button>
+      <p v-if="sendError" class="errorMessage">
+        {{ sendError }}
+      </p>
     </form>
   </div>
 </template>
@@ -100,5 +128,21 @@ const petOptions = ref([
 <style scoped>
 a {
   color: #42b983;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  font-size: 2em;
+  font-weight: 700;
+  margin-top: 20px;
+}
+
+.errorMessage {
+  color: crimson;
 }
 </style>
